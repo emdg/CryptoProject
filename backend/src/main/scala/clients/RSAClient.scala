@@ -5,7 +5,6 @@ import rsa.clients.RSAClient._
 import scodec.bits._
 import math._
 import rsa.{Keygenerator, PublicKey, PrivateKey}
-import java.nio.charset.StandardCharsets
 
 
 class RSAClient extends Actor {
