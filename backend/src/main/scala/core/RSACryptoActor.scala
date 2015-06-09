@@ -14,6 +14,9 @@ class RSACryptoActor(rsaService: ActorRef) extends Actor {
 		case RSADecryptRequest(message) =>
 		rsaService ! Decrypt(message)
 		context.become(waitingResponses)
+        case GetPublicKey =>
+        rsaService ! RequestPublicKey
+        context.become(waitingResponses)
 
 	}
 
@@ -24,5 +27,9 @@ class RSACryptoActor(rsaService: ActorRef) extends Actor {
 		context.parent ! RSASignature(message)
 		case Message(message) =>
 		context.parent ! RSADecrypted(message)
+        case PublicKey(e, n) =>
+        context.parent ! RequestedPublicKey(e, n)
+        case x @ _ =>
+        println(x)
 	}
 }

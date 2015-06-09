@@ -19,6 +19,10 @@ class RSAClient extends Actor {
 		case Decrypt(message) =>
 			val uncoded: BigInt = privateKey.decode(message)
 			sender ! Message(new String(uncoded.toByteArray.map(_.toChar)))
+        case RequestPublicKey =>
+            sender ! publicKey
+        case _ =>
+        	println("errosh")
 	}
 }
 
@@ -27,6 +31,8 @@ object RSAClient {
 	case class Decrypt(message: BigInt)
 	case class Signature(message: BigInt)
 	case class Message(message: String)
+    case object RequestPublicKey
+    case class PublicKeyOut(e: BigInt, n: BigInt)
 }
 
 

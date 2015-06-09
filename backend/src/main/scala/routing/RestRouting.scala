@@ -24,9 +24,14 @@ class RestRouting extends HttpService with Actor with PerRequestCreator {
             get {
                 parameters("message") { message =>
                     handleMessage {
-
                         RSADecryptRequest(BigInt(message))
                     }
+                }
+            }
+        } ~ path("publickey"){
+            get {
+                handleMessage {
+                    GetPublicKey
                 }
             }
         }
@@ -35,7 +40,7 @@ class RestRouting extends HttpService with Actor with PerRequestCreator {
 
 
     def handleMessage(message: RestMessage): Route = {
-        ctx => 
+        ctx =>
         perRequest(ctx, Props(new RSACryptoActor(rsaService)), message)
     }
 

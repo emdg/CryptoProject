@@ -2,8 +2,9 @@ name := "RSA Server"
 
 version := "0.1"
 
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+lazy val root = (project in file(".")).enablePlugins(JavaAppPackaging)
 
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
