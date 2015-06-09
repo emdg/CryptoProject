@@ -10,6 +10,7 @@ import rsa.{Keygenerator, PublicKey, PrivateKey}
 class RSAClient extends Actor {
 	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(512)
 	println(publicKey)
+	println(privateKey)
 	def receive = {
 		case Encrypt(message) =>
 			val uncoded: BigInt = BigInt(message.getBytes)
