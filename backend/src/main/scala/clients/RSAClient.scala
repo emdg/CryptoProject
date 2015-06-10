@@ -8,16 +8,15 @@ import rsa.{Keygenerator, PublicKey, PrivateKey}
 
 
 class RSAClient extends Actor {
-	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(32)
+	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(512)
 
 	def receive = {
 		case Encrypt(message) =>
-			val uncoded: BigInt = BigInt(message.getBytes)
-			val encoded: BigInt = publicKey.encode(uncoded)
+			val encoded: BigInt = publicKey.encode(message)
 			sender ! Signature(encoded)
 		case Decrypt(message) =>
 			val uncoded: BigInt = privateKey.decode(message)
-			sender ! Message(new String(uncoded.toByteArray.map(_.toChar)))
+			sender ! Message(uncoded)
         case RequestPublicKey =>
             sender ! publicKey
         case _ =>
@@ -26,10 +25,10 @@ class RSAClient extends Actor {
 }
 
 object RSAClient {
-	case class Encrypt(message: String)
+	case class Encrypt(message: BigInt)
 	case class Decrypt(message: BigInt)
 	case class Signature(message: BigInt)
-	case class Message(message: String)
+	case class Message(message: BigInt)
     case object RequestPublicKey
     case class PublicKeyOut(e: BigInt, n: BigInt)
 }
