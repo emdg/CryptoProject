@@ -13,25 +13,25 @@ N = int(data['n'])
 print N
 
 def generateZSet():
-	z = [random.randint(N**(1/3.0) + 1, N**(1/2.0) - 1) for p in range(10000)]
-	m_list = []
-	for message in z:
-		encrypt_url = "http://localhost:8080/encrypt?message={0}".format(message)
-		response = urllib.urlopen(encrypt_url)
-		data = json.loads(response.read())
-		m_list.append(data['signature'])
+    z = [random.randint(N**(1/3.0) + 1, N**(1/2.0) - 1) for p in range(10000)]
+    m_list = []
+    for message in z:
+        encrypt_url = "http://localhost:8080/encrypt?message={0}".format(message)
+        response = urllib.urlopen(encrypt_url)
+        data = json.loads(response.read())
+        m_list.append(data['signature'])
 
-	return m_list
+    return m_list
 def generateYSet():
-	y = [random.randint(0, N**(1/3.0)-1) for p in range(10000)]
-	m_list = []
+    y = [random.randint(0, N**(1/3.0)-1) for p in range(10000)]
+    m_list = []
 
-	for message in y:
-		encrypt_url = "http://localhost:8080/encrypt?message={0}".format(message)
-		response = urllib.urlopen(encrypt_url)
-		data = json.loads(response.read())
-		m_list.append(data['signature'])
-	return m_list
+    for message in y:
+        encrypt_url = "http://localhost:8080/encrypt?message={0}".format(message)
+        response = urllib.urlopen(encrypt_url)
+        data = json.loads(response.read())
+        m_list.append(data['signature'])
+    return m_list
 
 def egcd(a, b):
     if a == 0:
@@ -54,10 +54,10 @@ def generate_r(n):
     return 2 ** x
 
 def monPro(a, b, r, n):
-    
+
     r_inv = modinv(r, n)
     n_prime = (r * r_inv - 1)/n
-    
+
     t = a * b
     m = (t*n_prime) % r
     u = (t + m*n)/r
@@ -77,58 +77,61 @@ def modExp(M, d, n, r):
         C_bar, reduction = monPro(C_bar, C_bar, r, n)
         if(ei == '1'):
             C_bar, reduction  = monPro(M_bar, C_bar, r, n)
-  
+
     return reduction
 
 def RSACheckReduction(guess, message, n, r):
-	return modExp(message, guess, n, r)
+    return modExp(message, guess, n, r)
 
 def sendGuess(message):
-	start = time.clock()
-	decrypt_url = "http://localhost:8080/decrypt?message={0}".format(message)
-	response = urllib.urlopen(decrypt_url)
-	end = time.clock()
-	return end-start
+    decrypt_url = "http://localhost:8080/decrypt?message={0}".format(message)
+    start = time.clock()
+    response = urllib.urlopen(decrypt_url)
+    end = time.clock()
+    return end-start
 
 
 def getDecryptTime(message):
-	times = [] 
-	for i in range(1):
-		times.append(sendGuess(bin(message)[2:]))
-	times.sort()
-	return sum(times)/len(times)
+    times = []
+    for i in range(1):
+        times.append(sendGuess(bin(message)[2:]))
+    times.sort()
+    return sum(times)/len(times)
 
 def getSampleMessages(size):
-	return [random.randint(100000, 10000000) for s in range(size)]
+    return [random.randint(100000, 10000000) for s in range(size)]
 
 
 def doAttack(n):
-	r = generate_r(n)
-	bits_to_solve = 128
-	secretKey = '1'
+    r = generate_r(n)
+    bits_to_solve = 128
+    secretKey = '1'
 
-	for i in range(1, bits_to_solve):
-		sample_list = getSampleMessages(10000)
-		reduction_list = []
-		no_reduction_list = []
-		for sample in sample_list:
-			if RSACheckReduction(secretKey, sample, n, r):
-				reduction_list.append(sample)
-			else:
-				no_reduction_list.append(sample)
-					
-		no_reduction_times = []	
-		reduction_times = []
-		
-		for y in no_reduction_list:
-			no_reduction_times.append(getDecryptTime(y))
-		for x in reduction_list:
-			reduction_times.append(getDecryptTime(x))
+    for i in range(1, bits_to_solve):
+        sample_list = getSampleMessages(1000)
+        reduction_list = []
+        no_reduction_list = []
+        for sample in sample_list:
+            if RSACheckReduction(secretKey, sample, n, r):
+                reduction_list.append(sample)
+            else:
+                no_reduction_list.append(sample)
 
-		average_with_reduction = sum(reduction_times) / len(reduction_times)
-		average_without_reduction = sum(no_reduction_times)/len(no_reduction_times)
+        no_reduction_times = []
+        reduction_times = []
 
-		print average_with_reduction
+        for y in no_reduction_list:
+            no_reduction_times.append(getDecryptTime(y))
+        for x in reduction_list:
+            reduction_times.append(getDecryptTime(x))
 
-		print average_without_reduction
+        average_with_reduction = sum(reduction_times) / len(reduction_times)
+        average_without_reduction = sum(no_reduction_times)/len(no_reduction_times)
+        if (average_with_reduction > average_without_reduction):
+            secretKey += '1'
+        else:
+            secretKey += '0'
+        print average_with_reduction - average_without_reduction
+        print secretKey
+
 doAttack(N)

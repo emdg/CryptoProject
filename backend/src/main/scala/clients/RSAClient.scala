@@ -8,7 +8,9 @@ import rsa.{Keygenerator, PublicKey, PrivateKey}
 
 
 class RSAClient extends Actor {
-	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(512)
+	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(128)
+
+	println(privateKey.d.toString(2))
 
 	def receive = {
 		case Encrypt(message) =>
