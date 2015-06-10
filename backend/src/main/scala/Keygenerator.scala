@@ -5,13 +5,15 @@ import scala.util.Random.nextInt
 import rsa.keygen.RsaKeyGenerator
 
 case class PublicKey(e: BigInt, n: BigInt){
+	import rsa.RSAMath._
 	def encode(m: BigInt):BigInt = {
-		m.modPow(e, n)
+		monExp(m, e, n)
 	}
 }
 case class PrivateKey(d: BigInt, n: BigInt){
+	import rsa.RSAMath._
 	def decode(m: BigInt):BigInt = {
-		m.modPow(d, n)
+		monExp(m, d, n)
 	}
 }
 
@@ -24,4 +26,5 @@ object Keygenerator{
 		val privateKey = PrivateKey(kgen.d, kgen.n)
 		(publicKey, privateKey)
 	}
+
 }
