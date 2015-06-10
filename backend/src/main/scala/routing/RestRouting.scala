@@ -16,7 +16,7 @@ class RestRouting extends HttpService with Actor with PerRequestCreator {
             get {
                 parameters('message) { message =>
                     handleMessage {
-                        RSACryptRequest(message)
+                        RSACryptRequest(BigInt(message))
                     }
                 }
             }
