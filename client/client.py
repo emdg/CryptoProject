@@ -1,27 +1,18 @@
 import urllib, json, math, time
 
+public_url = "http://localhost:8080/publickey"
 
-
-message = "hello"
-encrypt_url = "https://polar-coast-7047.herokuapp.com/encrypt?message={0}".format(message)
-response = urllib.urlopen(encrypt_url);
+response = urllib.urlopen(public_url)
 data = json.loads(response.read())
 
-print data['signature']
+n = int(data['n'])
+e = bin(int(data['e']))[2:]
 
-decrypt_url = " https://polar-coast-7047.herokuapp.com/decrypt?message={0}".format(data['signature'])
+print n
 
-response = urllib.urlopen(decrypt_url)
-data = json.loads(response.read())
-
-print data['message']
-n = 7354628033541988736750302987383110880226650897465367854771937493624543493934806747233081996309885239339238683661216791054337975332653787872939937701072757
-e = 6528529828075575923152619377285048409711625043295897801139262997871415501509700229436121007530388984678945730890721390805825241477071752307557046080272561
-e = bin(e)[2:]
+print e
 
 
-
-print len(e)
 
 def generateGuess(e):
 	g = []
@@ -48,7 +39,7 @@ def modinv(a, m):
 		return x % m
 def sendGuess(g):
 	start = time.clock()
-	decrypt_url = " https://polar-coast-7047.herokuapp.com/decrypt?message={0}".format(g)
+	decrypt_url = " http://localhost:8080/decrypt?message={0}".format(g)
 
 	response = urllib.urlopen(decrypt_url)
 	data = json.loads(response.read())
@@ -57,18 +48,18 @@ def sendGuess(g):
 
 def getDecryptTime(uh):
 	times = []
-	for i in range(7):
+	for i in range(50):
 		times.append(sendGuess(uh))
 	times.sort()
 	return times[3]
 
 def makeAttack(g, e, n):
 	differences = []
-	for i in range(1, 256):
+	for i in range(1, 32):
+		print "n in makeAttack ", n
 		T = T1 = 0
 		g1 = g
 		g1[i] = '1'
-		
 		h1 = round(math.sqrt(int("".join(g1), 2)))
 		
 		h = round(math.sqrt(int("".join(g), 2)))
@@ -90,11 +81,9 @@ def makeAttack(g, e, n):
 	average = total/len(differences)
 
 	num = []
-	for x in range(36):
-		num.append('1')
 
 	for k in differences:
-		if k > 100*average:
+		if k > 1.004*average:
 			num.append('0')
 		else:
 			num.append('1')
@@ -105,10 +94,12 @@ def makeAttack(g, e, n):
 	print
 	print "n divided by q: ", n/q
 	print 
-	print "which gives private key: ", modInv(e, (q-1)*((n/q) - 1)) 
+	private_key = modinv(long(int("".join(e), 2)), (q-1)*((n/q) - 1))
+	print "which gives private key: ", private_key
+	print "with length: ", len(str(private_key)) 
 
 g = []
 g.append('1')
-for x in range(1,256):
+for x in range(1,32):
 	g.append('0')
 makeAttack(g, e, n)
