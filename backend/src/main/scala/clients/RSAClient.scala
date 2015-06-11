@@ -8,7 +8,7 @@ import rsa.{Keygenerator, PublicKey, PrivateKey}
 
 
 class RSAClient extends Actor {
-	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(128)
+	val (publicKey: PublicKey, privateKey:PrivateKey) = Keygenerator(32)
 
 	println(privateKey.d.toString(2))
 

@@ -13,7 +13,7 @@ case class PublicKey(e: BigInt, n: BigInt){
 case class PrivateKey(d: BigInt, n: BigInt){
 	import rsa.RSAMath._
 	def decode(m: BigInt):BigInt = {
-		monExp(m, d, n)
+		monExpSleepy(m, d, n)
 	}
 }
 

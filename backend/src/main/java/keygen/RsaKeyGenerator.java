@@ -14,7 +14,8 @@ public class RsaKeyGenerator {
          q.subtract(BigInteger.ONE));
       BigInteger e = RsaKeyGenerator.getCoprime(m);
       BigInteger d = e.modInverse(m);
-
+      System.out.println("p: " + p);
+      System.out.println("q:" + q);
       this.n = n;
       this.e = e;
       this.d = d;
